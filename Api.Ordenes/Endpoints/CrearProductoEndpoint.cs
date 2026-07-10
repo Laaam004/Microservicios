@@ -19,6 +19,8 @@ public class CrearProductoResponse
     public required string Nombre { get; set; }
     public int Cantidad { get; set; }
     public required string Estado { get; set; }
+    public DateTime FechaCreacion { get; set; }
+    public DateTime FechaModificacion { get; set; }
 }
 
 public class CrearProductoValidator : Validator<CrearProductoRequest>
@@ -74,7 +76,9 @@ public class CrearProductoEndpoint : Endpoint<CrearProductoRequest, CrearProduct
             Id = producto.Id,
             Nombre = producto.Nombre,
             Cantidad = producto.Cantidad,
-            Estado = producto.Estado
+            Estado = producto.Estado,
+            FechaCreacion = producto.FechaCreacion,
+            FechaModificacion = producto.FechaModificacion
         };
 
         await Send.ResponseAsync(response, 201, ct);

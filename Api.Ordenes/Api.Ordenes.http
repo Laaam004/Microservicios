@@ -8,6 +8,6 @@ POST {{Api.Ordenes_HostAddress}}/api/productos
 Content-Type: application/json
 
 {
-    "nombre": "Laptop Dell 3",
+    "nombre": "Laptop Dell 40",
     "cantidad": 10
 }

@@ -1,32 +1,41 @@
+using Aspire.Hosting;
+using Aspire.Hosting.Azure;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder
     .AddPostgres("postgres")
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithPgAdmin(o => o.WithHostPort(5555).WithLifetime(ContainerLifetime.Persistent));
+    .WithPgAdmin(pg => pg
+        .WithHostPort(5555)
+        .WithLifetime(ContainerLifetime.Persistent));
 
 var bdOrdenes = postgres.AddDatabase("bdordenes");
 var bdFacturaciones = postgres.AddDatabase("bdfacturaciones");
 
-
 var serviceBus = builder
     .AddAzureServiceBus("servicebus")
-    .RunAsEmulator(c => c.WithLifetime(ContainerLifetime.Persistent));
+    .RunAsEmulator(emulator =>
+    {
+        emulator.WithLifetime(ContainerLifetime.Persistent);
+    });
 
-var queueProductos = serviceBus.AddServiceBusQueue("productos");
-    
-builder .AddAsbEmulatorUi("asb-ui", serviceBus);
+serviceBus.AddServiceBusQueue("productos");
+serviceBus.AddServiceBusQueue("productos-procesados");
+
+builder.AddAsbEmulatorUi("asb-ui", serviceBus);
 
 builder
     .AddProject<Projects.Api_Facturacion>("api-facturacion")
     .WithReference(bdFacturaciones)
+    .WithReference(serviceBus)
     .WaitFor(bdFacturaciones)
     .WithExternalHttpEndpoints();
 
-builder 
+builder
     .AddProject<Projects.Api_Ordenes>("api-ordenes")
-    .WithReference(serviceBus)
     .WithReference(bdOrdenes)
+    .WithReference(serviceBus)
     .WaitFor(bdOrdenes)
     .WithExternalHttpEndpoints();
 

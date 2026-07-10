@@ -1,4 +1,5 @@
 using Api.Ordenes.Data;
+using Api.Ordenes.Services;
 using FastEndpoints;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddFastEndpoints();
 builder.AddNpgsqlDbContext<OrdenesDbContext>("bdordenes");
 builder.AddAzureServiceBusClient("servicebus");
+builder.Services.AddHostedService<ProductoProcesadoQueueListener>();
 
 var app = builder.Build();
 

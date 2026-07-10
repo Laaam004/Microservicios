@@ -1,8 +1,14 @@
+using Api.Facturacion.Data;
+using Api.Facturacion.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.AddNpgsqlDbContext<FacturacionDbContext>("bdfacturaciones");
+builder.AddAzureServiceBusClient("servicebus");
+builder.Services.AddHostedService<ProductoQueueListener>();
 
 var app = builder.Build();
 
@@ -13,6 +19,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Initialize database
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<FacturacionDbContext>();
+    dbContext.Database.EnsureDeleted();
+    dbContext.Database.EnsureCreated();
+}
+
 
 var summaries = new[]
 {
