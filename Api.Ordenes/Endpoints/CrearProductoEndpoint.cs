@@ -1,7 +1,9 @@
 using Api.Ordenes.Data;
 using Api.Ordenes.Models;
+using Azure.Messaging.ServiceBus;
 using FastEndpoints;
 using FluentValidation;
+using System.Text.Json;
 
 namespace Api.Ordenes.Endpoints;
 
@@ -33,10 +35,12 @@ public class CrearProductoValidator : Validator<CrearProductoRequest>
 public class CrearProductoEndpoint : Endpoint<CrearProductoRequest, CrearProductoResponse>
 {
     private readonly OrdenesDbContext _dbContext;
+    private readonly ServiceBusClient _serviceBusClient;
 
-    public CrearProductoEndpoint(OrdenesDbContext dbContext)
+    public CrearProductoEndpoint(OrdenesDbContext dbContext, ServiceBusClient serviceBusClient)
     {
         _dbContext = dbContext;
+        _serviceBusClient = serviceBusClient;
     }
 
     public override void Configure()
@@ -56,6 +60,14 @@ public class CrearProductoEndpoint : Endpoint<CrearProductoRequest, CrearProduct
 
         _dbContext.Productos.Add(producto);
         await _dbContext.SaveChangesAsync(ct);
+
+        await using var sender = _serviceBusClient.CreateSender("productos");
+        var messageBody = JsonSerializer.Serialize(producto);
+        var message = new ServiceBusMessage(messageBody)
+        {
+            ContentType = "application/json"
+        };
+        await sender.SendMessageAsync(message, ct);
 
         var response = new CrearProductoResponse
         {

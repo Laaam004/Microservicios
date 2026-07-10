@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddFastEndpoints();
 builder.AddNpgsqlDbContext<OrdenesDbContext>("bdordenes");
+builder.AddAzureServiceBusClient("servicebus");
 
 var app = builder.Build();
 
