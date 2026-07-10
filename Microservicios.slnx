@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Api.Facturacion/Api.Facturacion.csproj" />
+  <Project Path="Api.Ordenes/Api.Ordenes.csproj" />
+  <Project Path="Microservicios.AppHost/Microservicios.AppHost.csproj" />
+</Solution>
