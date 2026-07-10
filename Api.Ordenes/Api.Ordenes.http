@@ -4,3 +4,10 @@ GET {{Api.Ordenes_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+POST {{Api.Ordenes_HostAddress}}/api/productos
+Content-Type: application/json
+
+{
+    "nombre": "Laptop Dell",
+    "cantidad": 10
+}

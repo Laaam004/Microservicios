@@ -1,8 +1,13 @@
+using Api.Ordenes.Data;
+using FastEndpoints;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddFastEndpoints();
+builder.AddNpgsqlDbContext<OrdenesDbContext>("bdordenes");
 
 var app = builder.Build();
 
@@ -13,6 +18,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseFastEndpoints();
+
+// Initialize database
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<OrdenesDbContext>();
+    dbContext.Database.EnsureDeleted();
+    dbContext.Database.EnsureCreated();
+}
 
 var summaries = new[]
 {
